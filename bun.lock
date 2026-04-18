@@ -7,7 +7,6 @@
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.29.0",
         "express": "^5.2.1",
-        "hono": "^4.6.0",
         "tsdav": "^2.1.0",
         "zod": "^4.3.6",
       },
