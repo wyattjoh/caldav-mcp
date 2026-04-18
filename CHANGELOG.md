@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.1...caldav-mcp-v0.1.2) (2026-04-18)
+
+
+### Features
+
+* **http:** add request and error logging middleware ([5293a57](https://github.com/wyattjoh/caldav-mcp/commit/5293a576a8c3398b53b9f6c5e289736c7cf52d5e))
+
 ## [0.1.1](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.0...caldav-mcp-v0.1.1) (2026-04-18)
 
 
