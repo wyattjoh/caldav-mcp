@@ -46,7 +46,7 @@ test("requestLogger redacts OAuth code and token query params", async () => {
   expect(out).toContain("client_id=abc");
 });
 
-test("errorLogger writes stack and forwards the error", async () => {
+test("errorLogger writes stack and responds with 500 JSON instead of Express's default HTML", async () => {
   const app = express();
   app.use(requestLogger());
   app.get("/boom", (_req, _res, next) => {
@@ -54,9 +54,13 @@ test("errorLogger writes stack and forwards the error", async () => {
   });
   app.use(errorLogger());
 
+  let res: request.Response;
   const out = await captureStderr(async () => {
-    await request(app).get("/boom");
+    res = await request(app).get("/boom");
   });
 
   expect(out).toMatch(/caldav-mcp: error GET \/boom: .*kaboom/);
+  expect(res!.status).toBe(500);
+  expect(res!.headers["content-type"]).toMatch(/application\/json/);
+  expect(res!.body).toEqual({ error: "server_error" });
 });

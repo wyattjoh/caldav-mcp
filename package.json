@@ -3,14 +3,14 @@
   "version": "0.1.4",
   "description": "MCP server exposing a CalDAV calendar (Fastmail-tested) over stdio and HTTP with OAuth 2.1",
   "keywords": [
-    "mcp",
-    "model-context-protocol",
     "caldav",
     "calendar",
+    "claude",
     "fastmail",
+    "mcp",
+    "model-context-protocol",
     "oauth",
-    "oauth2",
-    "claude"
+    "oauth2"
   ],
   "license": "MIT",
   "repository": {

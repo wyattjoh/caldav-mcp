@@ -18,8 +18,9 @@ export const requestLogger = (): RequestHandler => (req, res, next) => {
   next();
 };
 
-export const errorLogger = (): ErrorRequestHandler => (err, req, _res, next) => {
+export const errorLogger = (): ErrorRequestHandler => (err, req, res, next) => {
   const msg = err instanceof Error ? (err.stack ?? err.message) : String(err);
   process.stderr.write(`caldav-mcp: error ${req.method} ${redactPath(req.originalUrl)}: ${msg}\n`);
-  next(err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: "server_error" });
 };
