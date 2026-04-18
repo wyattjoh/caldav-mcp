@@ -9,11 +9,10 @@
   "bin": {
     "caldav-mcp": "dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
-  "engines": {
-    "node": ">=18"
-  },
   "scripts": {
     "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
     "start": "bun run src/index.ts",
@@ -34,8 +33,12 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/express": "^5.0.6",
     "oxfmt": "~0.44.0",
     "oxlint": "^1.58.0",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
