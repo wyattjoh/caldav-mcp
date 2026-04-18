@@ -2,6 +2,17 @@
   "name": "@wyattjoh/caldav-mcp",
   "version": "0.1.3",
   "description": "MCP server exposing a CalDAV calendar (Fastmail-tested) over stdio and HTTP with OAuth 2.1",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "caldav",
+    "calendar",
+    "fastmail",
+    "oauth",
+    "oauth2",
+    "claude"
+  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wyattjoh/caldav-mcp.git"
