@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "dokploy": {
+      "command": "op",
+      "args": [
+        "run",
+        "--account",
+        "my.1password.com",
+        "--",
+        "npx",
+        "-y",
+        "@wyattjoh/dokploy-mcp"
+      ],
+      "env": {
+        "DOKPLOY_URL": "https://deepthought.trex-neon.ts.net",
+        "DOKPLOY_API_TOKEN": "op://Personal/Dokploy API Token - DeepThought/credential"
+      }
+    }
+  }
+}

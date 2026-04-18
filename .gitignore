@@ -8,3 +8,9 @@ dist/
 .env.*.local
 data/
 /docs/superpowers/
+coverage/
+.vscode/
+.idea/
+*.log
+.env.tpl
+*.tsbuildinfo
