@@ -27,6 +27,7 @@ export type ParsedEvent = {
   start: string;
   end: string;
   allDay: boolean;
+  timezone?: string;
   rrule?: string;
   recurrenceId?: string;
   attendees: Attendee[];
@@ -66,10 +67,37 @@ const toIcalUtc = (iso: string): string => {
 
 const toIcalDate = (iso: string): string => iso.replaceAll("-", "").slice(0, 8);
 
+const NAIVE_ISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
+
+const toIcalLocalWallClock = (iso: string, tz: string): string => {
+  const naive = NAIVE_ISO.exec(iso);
+  if (naive) return `${naive[1]}${naive[2]}${naive[3]}T${naive[4]}${naive[5]}${naive[6] ?? "00"}`;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) throw new Error(`Invalid datetime for TZID=${tz}: ${iso}`);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return `${get("year")}${get("month")}${get("day")}T${get("hour")}${get("minute")}${get("second")}`;
+};
+
 const fromIcalUtc = (s: string): string => {
   const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(s);
   if (!m) return s;
   return new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`).toISOString();
+};
+
+const fromIcalLocalNaive = (s: string): string => {
+  const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(s);
+  if (!m) return s;
+  return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;
 };
 
 const fromIcalDate = (s: string): string => {
@@ -102,8 +130,10 @@ export const buildVEvent = (input: BuildVEventInput): string => {
     lines.push(`DTSTART;VALUE=DATE:${toIcalDate(input.start)}`);
     lines.push(`DTEND;VALUE=DATE:${toIcalDate(input.end)}`);
   } else if (input.timezone) {
-    lines.push(`DTSTART;TZID=${input.timezone}:${toIcalUtc(input.start).replace(/Z$/, "")}`);
-    lines.push(`DTEND;TZID=${input.timezone}:${toIcalUtc(input.end).replace(/Z$/, "")}`);
+    lines.push(
+      `DTSTART;TZID=${input.timezone}:${toIcalLocalWallClock(input.start, input.timezone)}`,
+    );
+    lines.push(`DTEND;TZID=${input.timezone}:${toIcalLocalWallClock(input.end, input.timezone)}`);
   } else {
     lines.push(`DTSTART:${toIcalUtc(input.start)}`);
     lines.push(`DTEND:${toIcalUtc(input.end)}`);
@@ -199,6 +229,9 @@ export const parseVEvent = (iCalendar: string): ParsedEvent => {
         if (params.VALUE === "DATE") {
           event.start = fromIcalDate(value);
           event.allDay = true;
+        } else if (params.TZID) {
+          event.timezone = params.TZID;
+          event.start = fromIcalLocalNaive(value);
         } else {
           event.start = fromIcalUtc(value);
         }
@@ -207,6 +240,9 @@ export const parseVEvent = (iCalendar: string): ParsedEvent => {
         if (params.VALUE === "DATE") {
           event.end = fromIcalDate(value);
           event.allDay = true;
+        } else if (params.TZID) {
+          event.timezone = params.TZID;
+          event.end = fromIcalLocalNaive(value);
         } else {
           event.end = fromIcalUtc(value);
         }

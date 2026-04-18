@@ -175,7 +175,7 @@ export const createCaldavClient = (creds: CaldavCredentials): CaldavClient => {
         location: input.patch.location ?? parsed.location,
         rrule: input.patch.rrule ?? parsed.rrule,
         attendees: input.patch.attendees ?? parsed.attendees,
-        timezone: input.patch.timezone,
+        timezone: input.patch.timezone ?? parsed.timezone,
         uid: parsed.uid,
       });
       const res = await client.updateCalendarObject({

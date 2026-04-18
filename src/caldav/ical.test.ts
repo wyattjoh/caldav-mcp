@@ -88,6 +88,72 @@ test("parseVEvent unescapes text", () => {
   expect(parseVEvent(ical).summary).toBe("a, b; c");
 });
 
+test("buildVEvent with TZID emits wall-clock digits verbatim from naive ISO", () => {
+  const ical = buildVEvent({
+    summary: "S",
+    start: "2026-07-15T14:00:00",
+    end: "2026-07-15T15:00:00",
+    timezone: "America/Vancouver",
+  });
+  expect(ical).toContain("DTSTART;TZID=America/Vancouver:20260715T140000");
+  expect(ical).toContain("DTEND;TZID=America/Vancouver:20260715T150000");
+});
+
+test("buildVEvent with TZID converts zoned ISO to target-zone wall clock", () => {
+  // UTC 21:00 on 2026-07-15 is 14:00 America/Vancouver (PDT, UTC-7).
+  const ical = buildVEvent({
+    summary: "S",
+    start: "2026-07-15T21:00:00Z",
+    end: "2026-07-15T22:00:00Z",
+    timezone: "America/Vancouver",
+  });
+  expect(ical).toContain("DTSTART;TZID=America/Vancouver:20260715T140000");
+  expect(ical).toContain("DTEND;TZID=America/Vancouver:20260715T150000");
+});
+
+test("parseVEvent captures TZID and preserves wall-clock time", () => {
+  const ical = [
+    "BEGIN:VCALENDAR",
+    "BEGIN:VEVENT",
+    "UID:x@caldav-mcp.local",
+    "DTSTAMP:20260101T000000Z",
+    "DTSTART;TZID=America/Vancouver:20260715T140000",
+    "DTEND;TZID=America/Vancouver:20260715T150000",
+    "SUMMARY:S",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const parsed = parseVEvent(ical);
+  expect(parsed.timezone).toBe("America/Vancouver");
+  expect(parsed.start).toBe("2026-07-15T14:00:00");
+  expect(parsed.end).toBe("2026-07-15T15:00:00");
+});
+
+test("parseVEvent + buildVEvent round-trip preserves TZID without producing NaN", () => {
+  const original = [
+    "BEGIN:VCALENDAR",
+    "BEGIN:VEVENT",
+    "UID:x@caldav-mcp.local",
+    "DTSTAMP:20260101T000000Z",
+    "DTSTART;TZID=America/Vancouver:20260715T140000",
+    "DTEND;TZID=America/Vancouver:20260715T150000",
+    "SUMMARY:S",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const parsed = parseVEvent(original);
+  const rebuilt = buildVEvent({
+    summary: parsed.summary ?? "",
+    start: parsed.start,
+    end: parsed.end,
+    timezone: parsed.timezone,
+    uid: parsed.uid,
+  });
+  expect(rebuilt).toContain("DTSTART;TZID=America/Vancouver:20260715T140000");
+  expect(rebuilt).toContain("DTEND;TZID=America/Vancouver:20260715T150000");
+  expect(rebuilt).not.toContain("NaN");
+});
+
 test("parseVEvent handles folded lines", () => {
   const ical = [
     "BEGIN:VCALENDAR",
