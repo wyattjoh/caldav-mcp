@@ -10,6 +10,7 @@ import { createProvider, type VerifyLogin } from "../oauth/provider";
 import { createRateLimiter } from "../oauth/rate-limit";
 import { createServer } from "../mcp/server";
 import { createCaldavClient } from "../caldav/client";
+import { errorLogger, requestLogger } from "../util/log";
 
 export type HttpAppOptions = {
   publicUrl: string;
@@ -48,6 +49,7 @@ export const buildHttpApp = (opts: HttpAppOptions): HttpApp => {
 
   const app = express();
   app.set("trust proxy", 1);
+  app.use(requestLogger());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -93,6 +95,8 @@ export const buildHttpApp = (opts: HttpAppOptions): HttpApp => {
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  app.use(errorLogger());
 
   const sweep = setInterval(() => store.sweepExpired(db), 5 * 60_000);
   sweep.unref();
