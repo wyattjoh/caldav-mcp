@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.0...caldav-mcp-v0.1.1) (2026-04-18)
+
+
+### Bug Fixes
+
+* **http:** trust single upstream proxy so rate limiter honours X-Forwarded-For ([d1f84fd](https://github.com/wyattjoh/caldav-mcp/commit/d1f84fdc24354f5910a6833605df3662c96d013d))
+
 ## 0.1.0 (2026-04-18)
 
 
