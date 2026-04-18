@@ -52,6 +52,16 @@ const escapeHtml = (s: string): string =>
 export type LoginPageInput = {
   flowState: string;
   defaultServerUrl: string;
+  oauthParams: {
+    responseType: "code";
+    clientId: string;
+    redirectUri: string;
+    codeChallenge: string;
+    codeChallengeMethod: "S256";
+    resource?: string;
+    state?: string;
+    scope?: string;
+  };
   error?: string;
 };
 
@@ -75,6 +85,14 @@ export const renderLoginPage = (input: LoginPageInput): string => `<!doctype htm
   <p>Log in with your CalDAV credentials (Fastmail app password).</p>
   <form method="POST" action="/authorize" autocomplete="off">
     <input type="hidden" name="flow_state" value="${escapeHtml(input.flowState)}">
+    <input type="hidden" name="response_type" value="${escapeHtml(input.oauthParams.responseType)}">
+    <input type="hidden" name="client_id" value="${escapeHtml(input.oauthParams.clientId)}">
+    <input type="hidden" name="redirect_uri" value="${escapeHtml(input.oauthParams.redirectUri)}">
+    <input type="hidden" name="code_challenge" value="${escapeHtml(input.oauthParams.codeChallenge)}">
+    <input type="hidden" name="code_challenge_method" value="${escapeHtml(input.oauthParams.codeChallengeMethod)}">
+    ${input.oauthParams.resource !== undefined ? `<input type="hidden" name="resource" value="${escapeHtml(input.oauthParams.resource)}">` : ""}
+    ${input.oauthParams.state !== undefined ? `<input type="hidden" name="state" value="${escapeHtml(input.oauthParams.state)}">` : ""}
+    ${input.oauthParams.scope !== undefined ? `<input type="hidden" name="scope" value="${escapeHtml(input.oauthParams.scope)}">` : ""}
     <label>CalDAV server URL
       <input name="server_url" value="${escapeHtml(input.defaultServerUrl)}" required>
     </label>

@@ -71,7 +71,22 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
           opts.flowKey,
         );
         res.setHeader("content-type", "text/html; charset=utf-8");
-        res.send(renderLoginPage({ flowState, defaultServerUrl: opts.defaultServerUrl }));
+        res.send(
+          renderLoginPage({
+            flowState,
+            defaultServerUrl: opts.defaultServerUrl,
+            oauthParams: {
+              responseType: "code",
+              clientId: client.client_id,
+              redirectUri: params.redirectUri,
+              codeChallenge: params.codeChallenge,
+              codeChallengeMethod: "S256",
+              resource: params.resource?.toString(),
+              state: params.state,
+              scope: params.scopes?.join(" "),
+            },
+          }),
+        );
         return;
       }
 
@@ -105,12 +120,24 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
         return;
       }
 
+      const flowOauthParams = {
+        responseType: "code" as const,
+        clientId: flow.clientId,
+        redirectUri: flow.redirectUri,
+        codeChallenge: flow.codeChallenge,
+        codeChallengeMethod: "S256" as const,
+        resource: flow.resource,
+        state: flow.state,
+        scope: flow.scopes?.join(" "),
+      };
+
       if (opts.allowedUsernames.length > 0 && !opts.allowedUsernames.includes(username)) {
         res.setHeader("content-type", "text/html; charset=utf-8");
         res.send(
           renderLoginPage({
             flowState: flowStateStr,
             defaultServerUrl: opts.defaultServerUrl,
+            oauthParams: flowOauthParams,
             error: "This username is not permitted.",
           }),
         );
@@ -125,6 +152,7 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
           renderLoginPage({
             flowState: flowStateStr,
             defaultServerUrl: opts.defaultServerUrl,
+            oauthParams: flowOauthParams,
             error: "Login failed. Check your server URL, username, and app password.",
           }),
         );
