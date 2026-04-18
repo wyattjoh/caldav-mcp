@@ -16,6 +16,7 @@ ENV NODE_ENV=production
 ENV CALDAV_MCP_HOST=0.0.0.0
 ENV CALDAV_MCP_PORT=3000
 ENV CALDAV_MCP_DB_PATH=/data/caldav-mcp.sqlite
+RUN mkdir -p /data && chown -R bun:bun /data /app
 EXPOSE 3000
 VOLUME ["/data"]
 USER bun

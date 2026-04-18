@@ -13,8 +13,12 @@
     "dist"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
+    "prepack": "bun run build",
     "start": "bun run src/index.ts",
     "start:http": "bun run src/index.ts --http",
     "check": "bun run lint && bun run fmt:check && bun run typecheck",
