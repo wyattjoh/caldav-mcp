@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.4...caldav-mcp-v0.1.5) (2026-04-18)
+
+
+### Bug Fixes
+
+* **http:** respond with 500 JSON on unhandled errors instead of HTML ([ab72296](https://github.com/wyattjoh/caldav-mcp/commit/ab72296e36195270dcbc466ba13db9dad8eff552))
+
 ## [0.1.4](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.3...caldav-mcp-v0.1.4) (2026-04-18)
 
 
