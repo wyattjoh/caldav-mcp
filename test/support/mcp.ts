@@ -4,14 +4,15 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { CaldavClient } from "../../src/caldav/client";
 import { registerCalendarTools } from "../../src/mcp/tools/calendars";
 import { registerEventTools } from "../../src/mcp/tools/events";
+import { registerFreebusyTools } from "../../src/mcp/tools/freebusy";
 
 export const setupMcp = async (caldav: CaldavClient) => {
   const server = new McpServer({ name: "test", version: "0.0.0" });
   registerCalendarTools(server, caldav);
   registerEventTools(server, caldav);
+  registerFreebusyTools(server, caldav);
 
-  const [clientTransport, serverTransport] =
-    InMemoryTransport.createLinkedPair();
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await server.connect(serverTransport);
   const client = new Client({ name: "test-client", version: "0.0.0" });
   await client.connect(clientTransport);
