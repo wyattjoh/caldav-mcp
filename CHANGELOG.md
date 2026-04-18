@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.2...caldav-mcp-v0.1.3) (2026-04-18)
+
+
+### Bug Fixes
+
+* **http:** mount MCP handler at / so Claude.ai root-path clients work ([02ebb8d](https://github.com/wyattjoh/caldav-mcp/commit/02ebb8d3d42c7ab3cdcac3b3f4d56bd176676580))
+
 ## [0.1.2](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.1...caldav-mcp-v0.1.2) (2026-04-18)
 
 
