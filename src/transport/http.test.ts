@@ -29,6 +29,16 @@ test("unauthenticated POST /mcp returns 401 + WWW-Authenticate", async () => {
   expect(res.headers["www-authenticate"]).toMatch(/resource_metadata=/);
 });
 
+test("unauthenticated POST / returns 401 so Claude.ai root-path clients get a proper challenge", async () => {
+  const { app } = buildHttpApp(defaultOpts());
+  const res = await request(app)
+    .post("/")
+    .set("content-type", "application/json")
+    .send({ jsonrpc: "2.0", id: 1, method: "tools/list" });
+  expect(res.status).toBe(401);
+  expect(res.headers["www-authenticate"]).toMatch(/resource_metadata=/);
+});
+
 test("GET /.well-known/oauth-protected-resource returns metadata", async () => {
   const { app } = buildHttpApp(defaultOpts());
   const res = await request(app).get("/.well-known/oauth-protected-resource");

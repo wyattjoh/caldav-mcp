@@ -67,7 +67,7 @@ export const buildHttpApp = (opts: HttpAppOptions): HttpApp => {
     resourceMetadataUrl: `${opts.publicUrl}/.well-known/oauth-protected-resource`,
   });
 
-  app.post("/mcp", bearer, async (req, res) => {
+  const mcpHandler: express.RequestHandler = async (req, res) => {
     const accountId = req.auth?.extra?.accountId;
     if (typeof accountId !== "string" || !accountId) {
       res.status(401).json({ error: "invalid_token" });
@@ -90,7 +90,13 @@ export const buildHttpApp = (opts: HttpAppOptions): HttpApp => {
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     await mcp.connect(transport);
     await transport.handleRequest(req, res, req.body);
-  });
+  };
+
+  for (const mount of ["/", "/mcp"]) {
+    app.post(mount, bearer, mcpHandler);
+    app.get(mount, bearer, mcpHandler);
+    app.delete(mount, bearer, mcpHandler);
+  }
 
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
