@@ -1,0 +1,41 @@
+{
+  "name": "@wyattjoh/caldav-mcp",
+  "version": "0.0.0",
+  "description": "MCP server exposing a CalDAV calendar (Fastmail-tested) over stdio and HTTP with OAuth 2.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wyattjoh/caldav-mcp.git"
+  },
+  "bin": {
+    "caldav-mcp": "dist/index.js"
+  },
+  "files": ["dist"],
+  "type": "module",
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
+    "start": "bun run src/index.ts",
+    "start:http": "bun run src/index.ts --http",
+    "check": "bun run lint && bun run fmt:check && bun run typecheck",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "typecheck": "bunx tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "hono": "^4.6.0",
+    "tsdav": "^2.1.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "bun-types": "^1.3.11",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.58.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
