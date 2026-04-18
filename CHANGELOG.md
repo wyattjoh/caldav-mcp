@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.4](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.3...caldav-mcp-v0.1.4) (2026-04-18)
+
+
+### Bug Fixes
+
+* **pkg:** add keywords and explicit license for npm discoverability ([13f3e1f](https://github.com/wyattjoh/caldav-mcp/commit/13f3e1f1857b2d336709928f43ee989b5bff34f8))
+* remove other command ([e7d385f](https://github.com/wyattjoh/caldav-mcp/commit/e7d385ff2da9ac607d2a37dbd0e48cb194ac2c53))
+
 ## [0.1.3](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.2...caldav-mcp-v0.1.3) (2026-04-18)
 
 
