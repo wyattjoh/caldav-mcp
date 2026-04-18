@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.sqlite
+*.sqlite-journal
+.DS_Store
+.env
+.env.local
+.env.*.local
+data/
+/docs/superpowers/
+coverage/
+.vscode/
+.idea/
+*.log
+.env.tpl
+*.tsbuildinfo

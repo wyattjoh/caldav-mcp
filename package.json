@@ -1,0 +1,61 @@
+{
+  "name": "@wyattjoh/caldav-mcp",
+  "version": "0.1.4",
+  "description": "MCP server exposing a CalDAV calendar (Fastmail-tested) over stdio and HTTP with OAuth 2.1",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "caldav",
+    "calendar",
+    "fastmail",
+    "oauth",
+    "oauth2",
+    "claude"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wyattjoh/caldav-mcp.git"
+  },
+  "bin": {
+    "caldav-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
+    "prepack": "bun run build",
+    "start": "bun run src/index.ts",
+    "start:http": "bun run src/index.ts --http",
+    "check": "bun run lint && bun run fmt:check && bun run typecheck",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "express": "^5.2.1",
+    "tsdav": "^2.1.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "@types/supertest": "^7.2.0",
+    "oxfmt": "~0.44.0",
+    "oxlint": "^1.58.0",
+    "supertest": "^7.2.2",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
