@@ -8,14 +8,9 @@
         "DOKPLOY_API_TOKEN": "op://Personal/Dokploy API Token - DeepThought/credential"
       }
     },
-    "caldav": {
-      "command": "op",
-      "args": ["run", "--account", "my.1password.com", "--", "bun", "run", "src/index.ts"],
-      "env": {
-        "CALDAV_SERVER_URL": "https://caldav.fastmail.com/",
-        "CALDAV_USERNAME": "me@wyattjoh.ca",
-        "CALDAV_APP_PASSWORD": "op://Personal/Fastmail Calendar - Claude/credential"
-      }
+    "calendar": {
+      "type": "http",
+      "url": "https://caldav-mcp.trex-neon.ts.net/"
     }
   }
 }
