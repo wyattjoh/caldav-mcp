@@ -37,9 +37,7 @@ test("caldav_search_events returns events in range", async () => {
   const parsed = parseResponse(result);
   expect(parsed.events).toHaveLength(1);
   expect(parsed.events[0].summary).toBe("Meet");
-  expect(parsed.events[0].url).toBe(
-    "https://caldav.example.com/cal/default/e1.ics",
-  );
+  expect(parsed.events[0].url).toBe("https://caldav.example.com/cal/default/e1.ics");
   expect(parsed.events[0].etag).toBe('W/"1"');
 });
 

@@ -19,9 +19,7 @@ export const GetEventSchema = z.object({
 export const AttendeeSchema = z.object({
   email: z.email(),
   name: z.string().optional(),
-  role: z
-    .enum(["CHAIR", "REQ-PARTICIPANT", "OPT-PARTICIPANT", "NON-PARTICIPANT"])
-    .optional(),
+  role: z.enum(["CHAIR", "REQ-PARTICIPANT", "OPT-PARTICIPANT", "NON-PARTICIPANT"]).optional(),
 });
 
 export const CreateEventSchema = z.object({
@@ -61,10 +59,7 @@ export const DeleteEventSchema = z.object({
   etag: z.string().optional(),
 });
 
-export const registerEventTools = (
-  server: McpServer,
-  caldav: CaldavClient,
-): void => {
+export const registerEventTools = (server: McpServer, caldav: CaldavClient): void => {
   server.registerTool(
     "caldav_search_events",
     {
@@ -76,14 +71,12 @@ export const registerEventTools = (
     },
     async (args) => {
       try {
-        const { events, etagByUrl, urlByUid } = await caldav.fetchEventsInRange(
-          {
-            calendarUrl: args.calendarUrl,
-            start: args.start,
-            end: args.end,
-            expand: args.expandRecurring,
-          },
-        );
+        const { events, etagByUrl, urlByUid } = await caldav.fetchEventsInRange({
+          calendarUrl: args.calendarUrl,
+          start: args.start,
+          end: args.end,
+          expand: args.expandRecurring,
+        });
         const enriched = events.slice(0, args.limit).map((e) => {
           const url = urlByUid[e.uid];
           return { ...e, url, etag: url ? (etagByUrl[url] ?? "") : "" };
@@ -122,9 +115,7 @@ export const registerEventTools = (
       try {
         const { event, etag } = await caldav.getEvent(args);
         return {
-          content: [
-            { type: "text", text: JSON.stringify({ event, etag }, null, 2) },
-          ],
+          content: [{ type: "text", text: JSON.stringify({ event, etag }, null, 2) }],
         };
       } catch (error) {
         return {
@@ -213,9 +204,7 @@ export const registerEventTools = (
       try {
         await caldav.deleteEvent(args);
         return {
-          content: [
-            { type: "text", text: JSON.stringify({ deleted: true }, null, 2) },
-          ],
+          content: [{ type: "text", text: JSON.stringify({ deleted: true }, null, 2) }],
         };
       } catch (error) {
         return {
