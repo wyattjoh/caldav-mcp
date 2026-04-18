@@ -26,4 +26,4 @@ Follow the pattern from `../jmap-mcp/src/tools/email_test.ts`. Build an `McpServ
 
 Use Hono's `app.request(path, init)`. No sockets, no fetch. SQLite runs against a per-test `":memory:"` database via a helper in `test/support/db.ts`. Clock-dependent tests pass a `now()` function into the unit under test; never use `spyOn(Date, "now")`.
 
-Avoid `mock.module()` — see Bun 1.x process-lifetime pollution caveat.
+Avoid `mock.module()`, see Bun 1.x process-lifetime pollution caveat.

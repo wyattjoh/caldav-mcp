@@ -23,9 +23,9 @@ bun run test               # bun:test suite
 
 Per-domain conventions live in `.claude/rules/`:
 
-- `tools.md`, `oauth.md`, `caldav.md`, `ical.md` — domain-specific authoring rules
-- `testing.md`, `logging.md`, `errors.md`, `db.md` — cross-cutting concerns
-- `commits.md` — conventional commits
+- `tools.md`, `oauth.md`, `caldav.md`, `ical.md`, domain-specific authoring rules
+- `testing.md`, `logging.md`, `errors.md`, `db.md`, cross-cutting concerns
+- `commits.md`, conventional commits
 
 When editing files in a rule's `paths` scope, follow that rule.
 

@@ -1,5 +1,5 @@
 ---
-description: CalDAV client boundary — all DAV I/O goes through src/caldav/client.ts
+description: CalDAV client boundary, all DAV I/O goes through src/caldav/client.ts
 paths:
   - "src/caldav/**"
   - "src/mcp/tools/**"
@@ -18,4 +18,4 @@ The `tsdav` import surface is confined to `src/caldav/client.ts`. Tool handlers 
 - `deleteEvent({ eventUrl, etag })`
 - `queryFreebusy({ calendarUrls, start, end })`
 
-New CalDAV features get a method on this interface. If a tool needs something that is not on the interface, add the method — do not reach around it.
+New CalDAV features get a method on this interface. If a tool needs something that is not on the interface, add the method, do not reach around it.

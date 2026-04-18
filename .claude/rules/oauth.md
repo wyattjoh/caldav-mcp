@@ -1,5 +1,5 @@
 ---
-description: OAuth 2.1 endpoint discipline — PKCE, audience binding, token hashing
+description: OAuth 2.1 endpoint discipline, PKCE, audience binding, token hashing
 paths:
   - "src/oauth/**"
 alwaysApply: false

@@ -1,5 +1,5 @@
 ---
-description: Error handling — formatError, tool response envelope, OAuth error JSON
+description: Error handling, formatError, tool response envelope, OAuth error JSON
 paths:
   - "src/**/*.ts"
 alwaysApply: false
