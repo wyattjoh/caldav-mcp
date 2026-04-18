@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icons/icon.png" alt="caldav-mcp icon" width="180" height="180" />
+</p>
+
 # @wyattjoh/caldav-mcp
 
 MCP server exposing a CalDAV calendar (Fastmail-tested) over stdio and HTTP. The HTTP transport is a self-hosted OAuth 2.1 authorization server usable as a Claude.ai custom connector.
