@@ -14,6 +14,11 @@ const defaultOpts = () => ({
   verifyLogin: async () => {},
 });
 
+test("trusts a single upstream proxy so X-Forwarded-For is honored by express-rate-limit", () => {
+  const { app } = buildHttpApp(defaultOpts());
+  expect(app.get("trust proxy")).toBe(1);
+});
+
 test("unauthenticated POST /mcp returns 401 + WWW-Authenticate", async () => {
   const { app } = buildHttpApp(defaultOpts());
   const res = await request(app)
