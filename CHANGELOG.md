@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.2.0...caldav-mcp-v0.2.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* format registration logging helper ([fef6495](https://github.com/wyattjoh/caldav-mcp/commit/fef6495d823df2fb988fbfe3bf029d9641427848))
+* support native app oauth redirects ([ee37595](https://github.com/wyattjoh/caldav-mcp/commit/ee37595e9f779f1f8dcda3e1b4578bc1e8315605))
+
 ## [0.2.0](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.5...caldav-mcp-v0.2.0) (2026-04-19)
 
 
