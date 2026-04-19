@@ -1,6 +1,6 @@
 {
   "name": "@wyattjoh/caldav-mcp",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "MCP server exposing a CalDAV calendar (Fastmail-tested) over stdio and HTTP with OAuth 2.1",
   "keywords": [
     "caldav",
