@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.5...caldav-mcp-v0.2.0) (2026-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **oauth:** CALDAV_MCP_ALLOWED_USERNAMES is now required for the HTTP transport. Set it to a comma-separated list of permitted CalDAV usernames before upgrading.
+
+### Bug Fixes
+
+* **oauth:** require allow-list and enforce it on all token operations ([bc210ca](https://github.com/wyattjoh/caldav-mcp/commit/bc210ca8dc71db4b1187eac05680e50ec027fae1))
+
 ## [0.1.5](https://github.com/wyattjoh/caldav-mcp/compare/caldav-mcp-v0.1.4...caldav-mcp-v0.1.5) (2026-04-18)
 
 
