@@ -20,6 +20,7 @@ import * as store from "./db";
 import { renderLoginPage, signFlowState, verifyFlowState } from "./login-page";
 import type { RateLimiter } from "./rate-limit";
 import { createClientsStore } from "./clients-store";
+import { normalizeUsername } from "../config";
 
 export type VerifyLogin = (input: {
   serverUrl: string;
@@ -47,6 +48,13 @@ const randomToken = (): string => randomBytes(32).toString("base64url");
 export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
   const now = opts.now ?? (() => Date.now());
   const clients = createClientsStore(opts.db, now);
+
+  const accountIsAllowed = (accountId: string): boolean => {
+    if (opts.allowedUsernames.length === 0) return true;
+    const username = store.getAccountUsername(opts.db, accountId);
+    if (!username) return false;
+    return opts.allowedUsernames.includes(normalizeUsername(username));
+  };
 
   return {
     clientsStore: clients,
@@ -101,7 +109,7 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
         return;
       }
 
-      const username = body.username ?? "";
+      const username = normalizeUsername(body.username ?? "");
       const password = body.password ?? "";
       const serverUrl = body.server_url ?? opts.defaultServerUrl;
 
@@ -131,6 +139,8 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
         scope: flow.scopes?.join(" "),
       };
 
+      const genericLoginError = "Login failed. Check your server URL, username, and app password.";
+
       if (opts.allowedUsernames.length > 0 && !opts.allowedUsernames.includes(username)) {
         res.setHeader("content-type", "text/html; charset=utf-8");
         res.send(
@@ -138,7 +148,7 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
             flowState: flowStateStr,
             defaultServerUrl: opts.defaultServerUrl,
             oauthParams: flowOauthParams,
-            error: "This username is not permitted.",
+            error: genericLoginError,
           }),
         );
         return;
@@ -153,7 +163,7 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
             flowState: flowStateStr,
             defaultServerUrl: opts.defaultServerUrl,
             oauthParams: flowOauthParams,
-            error: "Login failed. Check your server URL, username, and app password.",
+            error: genericLoginError,
           }),
         );
         return;
@@ -250,6 +260,8 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
       if (before.clientId !== client.client_id) throw new InvalidGrantError("client mismatch");
       if (resource && before.resource && resource.toString() !== before.resource)
         throw new InvalidTargetError("resource mismatch");
+      if (!accountIsAllowed(before.accountId))
+        throw new InvalidGrantError("account no longer permitted");
 
       const newRefresh = randomToken();
       const rotated = store.rotateRefreshToken(opts.db, refreshToken, newRefresh, now);
@@ -281,6 +293,8 @@ export const createProvider = (opts: ProviderOptions): OAuthServerProvider => {
     async verifyAccessToken(token: string): Promise<AuthInfo> {
       const row = store.validateAccessToken(opts.db, token, now);
       if (!row) throw new InvalidTokenError("invalid or expired access token");
+      if (!accountIsAllowed(row.accountId))
+        throw new InvalidTokenError("account no longer permitted");
       return {
         token,
         clientId: row.clientId,

@@ -9,7 +9,7 @@ const defaultOpts = () => ({
   publicUrl: "http://localhost:3000",
   defaultServerUrl: "https://caldav.fastmail.com/",
   encryptionKey: new Uint8Array(32).fill(7),
-  allowedUsernames: [],
+  allowedUsernames: ["u@x.com"],
   dbPath: ":memory:",
   verifyLogin: async () => {},
 });

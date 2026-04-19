@@ -52,8 +52,11 @@ docker run -d \
   -v caldav-mcp-data:/data \
   -e CALDAV_MCP_PUBLIC_URL=https://caldav-mcp.example.com \
   -e CALDAV_MCP_ENCRYPTION_KEY="$(openssl rand -base64 32)" \
+  -e CALDAV_MCP_ALLOWED_USERNAMES="you@example.com" \
   ghcr.io/wyattjoh/caldav-mcp:latest
 ```
+
+`CALDAV_MCP_ALLOWED_USERNAMES` is required: a comma-separated list of CalDAV usernames permitted to log in. Anyone not on this list is rejected at `/authorize`, and existing tokens are revoked on next use if their account is removed from the list. Matching is case-insensitive and whitespace-tolerant.
 
 Add it as a custom connector in Claude.ai with `Remote MCP server URL` set to the public URL. Leave `OAuth Client ID` blank to use Dynamic Client Registration.
 

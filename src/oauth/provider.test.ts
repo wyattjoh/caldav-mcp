@@ -205,7 +205,7 @@ describe("authorize POST", () => {
     expect(res.body).toContain("Login failed");
   });
 
-  test("username not in allowlist => re-renders with 'not permitted'", async () => {
+  test("username not in allowlist => re-renders with generic login error (no enumeration oracle)", async () => {
     const { provider } = makeProvider({ allowedUsernames: ["allowed@example.com"] });
     const flowState = makeFlowState();
     const res = fakeRes({
@@ -226,7 +226,32 @@ describe("authorize POST", () => {
     );
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toContain("not permitted");
+    expect(res.body).toContain("Login failed");
+    expect(res.body).not.toContain("not permitted");
+  });
+
+  test("allowlist match is case-insensitive and whitespace-tolerant", async () => {
+    const { provider } = makeProvider({ allowedUsernames: ["alice@example.com"] });
+    const flowState = makeFlowState();
+    const res = fakeRes({
+      method: "POST",
+      body: {
+        flow_state: flowState,
+        username: "  Alice@Example.COM  ",
+        password: "secret",
+      },
+    });
+    await provider.authorize(
+      TEST_CLIENT,
+      {
+        codeChallenge: "abc123",
+        redirectUri: "https://client.example.com/callback",
+      },
+      res as unknown as import("express").Response,
+    );
+
+    expect(res.statusCode).toBe(302);
+    expect(res.location).toContain("code=");
   });
 
   test("rate-limited => 429 with Retry-After", async () => {
@@ -407,6 +432,50 @@ describe("exchangeRefreshToken", () => {
     // Old refresh token should now be invalid
     await expect(provider.exchangeRefreshToken(TEST_CLIENT, oldRefresh)).rejects.toThrow();
   });
+
+  test("refresh is rejected when account is removed from allowlist after issuance", async () => {
+    const db = createDb(":memory:");
+    const rateLimiter = createRateLimiter({ limit: 5, windowMs: 15 * 60_000 });
+    const allowedUsernames = ["alice@example.com"];
+    const provider = createProvider({
+      db,
+      encryptionKey: ENCRYPTION_KEY,
+      flowKey: FLOW_KEY,
+      defaultServerUrl: "https://caldav.example.com",
+      allowedUsernames,
+      verifyLogin: okVerify,
+      rateLimiter,
+    });
+
+    const flowState = makeFlowState({ codeChallenge: "pkce-challenge" });
+    const res = fakeRes({
+      method: "POST",
+      body: {
+        flow_state: flowState,
+        username: "alice@example.com",
+        password: "secret",
+      },
+    });
+    await provider.authorize(
+      TEST_CLIENT,
+      {
+        codeChallenge: "pkce-challenge",
+        redirectUri: "https://client.example.com/callback",
+      },
+      res as unknown as import("express").Response,
+    );
+    const u = new URL(res.location);
+    const code = u.searchParams.get("code")!;
+    const tokens = await provider.exchangeAuthorizationCode(TEST_CLIENT, code);
+
+    // Remove alice from the live allowlist (mutate in place so provider sees it)
+    allowedUsernames.length = 0;
+    allowedUsernames.push("bob@example.com");
+
+    await expect(
+      provider.exchangeRefreshToken(TEST_CLIENT, tokens.refresh_token!),
+    ).rejects.toThrow();
+  });
 });
 
 describe("verifyAccessToken", () => {
@@ -453,6 +522,52 @@ describe("verifyAccessToken", () => {
 
     // Advance time past the 3600s expiry
     t = 3600_001;
+    await expect(provider.verifyAccessToken(tokens.access_token)).rejects.toThrow();
+  });
+
+  test("access token rejected when account is removed from allowlist after issuance", async () => {
+    const db = createDb(":memory:");
+    const rateLimiter = createRateLimiter({ limit: 5, windowMs: 15 * 60_000 });
+    const allowedUsernames = ["alice@example.com"];
+    const provider = createProvider({
+      db,
+      encryptionKey: ENCRYPTION_KEY,
+      flowKey: FLOW_KEY,
+      defaultServerUrl: "https://caldav.example.com",
+      allowedUsernames,
+      verifyLogin: okVerify,
+      rateLimiter,
+    });
+
+    const flowState = makeFlowState({ codeChallenge: "pkce-challenge" });
+    const res = fakeRes({
+      method: "POST",
+      body: {
+        flow_state: flowState,
+        username: "alice@example.com",
+        password: "secret",
+      },
+    });
+    await provider.authorize(
+      TEST_CLIENT,
+      {
+        codeChallenge: "pkce-challenge",
+        redirectUri: "https://client.example.com/callback",
+      },
+      res as unknown as import("express").Response,
+    );
+    const u = new URL(res.location);
+    const code = u.searchParams.get("code")!;
+    const tokens = await provider.exchangeAuthorizationCode(TEST_CLIENT, code);
+
+    // Token works initially
+    const info = await provider.verifyAccessToken(tokens.access_token);
+    expect(info.extra?.accountId).toBeTruthy();
+
+    // Remove alice from the live allowlist (mutate in place so provider sees it)
+    allowedUsernames.length = 0;
+    allowedUsernames.push("bob@example.com");
+
     await expect(provider.verifyAccessToken(tokens.access_token)).rejects.toThrow();
   });
 });

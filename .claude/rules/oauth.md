@@ -33,7 +33,7 @@ The OAuth 2.1 authorization server is **not** hand-rolled. It comes from `@model
 - **TTLs.** Auth codes 60s, access tokens 3600s, refresh tokens 30 days with rotation on every use.
 - **Redirect URIs.** `registerClient` validates exact match: `https://` required unless host is `localhost`.
 - **Rate limiting.** `provider.authorize()` POST path checks `src/oauth/rate-limit.ts` (5 attempts / 15 min per `ip|username`); rejects with 429 + `Retry-After`.
-- **Allow-list.** `provider.authorize()` POST rejects unknown usernames when `CALDAV_MCP_ALLOWED_USERNAMES` is non-empty.
+- **Allow-list.** `CALDAV_MCP_ALLOWED_USERNAMES` is required and must be non-empty in HTTP mode (`parseHttpConfig` throws otherwise). `provider.authorize()` POST rejects unknown usernames with the generic login-failed message (no enumeration oracle). The allow-list is re-checked on every `verifyAccessToken` and `exchangeRefreshToken` call so operators can revoke access by removing a username from the env. Usernames are normalized via `normalizeUsername` (trim + lowercase) on both the env side and the submitted form value.
 - **HTTPS-only redirects** at DCR time.
 
 Never add a new OAuth endpoint by hand. If you think you need one, check whether the SDK already exposes it, then extend `OAuthServerProvider` or the clients store. Secrets (passwords, tokens, encryption keys) are never logged in any form.

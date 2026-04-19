@@ -92,6 +92,13 @@ export const upsertAccount = (
   return id;
 };
 
+export const getAccountUsername = (db: Database, id: string): string | undefined => {
+  const row = db
+    .query<{ username: string }, [string]>("SELECT username FROM caldav_accounts WHERE id = ?")
+    .get(id);
+  return row?.username;
+};
+
 export const loadAccount = (
   db: Database,
   key: Uint8Array,
