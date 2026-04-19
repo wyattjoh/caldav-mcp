@@ -57,9 +57,7 @@ export const requestLogger = (): RequestHandler => (req, res, next) => {
 
 export const registrationLogger = (): RequestHandler => (req, _res, next) => {
   if (req.method === "POST" && req.path === "/register") {
-    process.stderr.write(
-      `caldav-mcp: register request ${summarizeClientRegistration(req.body)}\n`,
-    );
+    process.stderr.write(`caldav-mcp: register request ${summarizeClientRegistration(req.body)}\n`);
   }
   next();
 };
