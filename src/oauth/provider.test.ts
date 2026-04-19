@@ -636,4 +636,23 @@ describe("clientsStore", () => {
     } as unknown as Omit<OAuthClientInformationFull, "client_id" | "client_id_issued_at">);
     expect(result.client_id).toBeTruthy();
   });
+
+  test("registerClient accepts custom-scheme redirect_uris", async () => {
+    const { provider } = makeProvider();
+    const result = await provider.clientsStore.registerClient!({
+      redirect_uris: ["raycast://oauth"],
+      client_name: "test",
+    } as unknown as Omit<OAuthClientInformationFull, "client_id" | "client_id_issued_at">);
+    expect(result.client_id).toBeTruthy();
+  });
+
+  test("registerClient rejects dangerous custom-scheme redirect_uris", async () => {
+    const { provider } = makeProvider();
+    await expect(
+      provider.clientsStore.registerClient!({
+        redirect_uris: ["javascript:alert(1)"],
+        client_name: "test",
+      } as unknown as Omit<OAuthClientInformationFull, "client_id" | "client_id_issued_at">),
+    ).rejects.toThrow("invalid redirect_uri");
+  });
 });

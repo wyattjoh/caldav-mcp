@@ -1,7 +1,7 @@
 import { test, expect } from "bun:test";
 import express from "express";
 import request from "supertest";
-import { requestLogger, errorLogger } from "./log";
+import { requestLogger, registrationLogger, errorLogger, summarizeClientRegistration } from "./log";
 
 const captureStderr = async (fn: () => Promise<void>): Promise<string> => {
   const chunks: string[] = [];
@@ -44,6 +44,46 @@ test("requestLogger redacts OAuth code and token query params", async () => {
   expect(out).toContain("code=<redacted>");
   expect(out).toContain("access_token=<redacted>");
   expect(out).toContain("client_id=abc");
+});
+
+test("summarizeClientRegistration keeps useful metadata and omits unknown values", () => {
+  expect(
+    summarizeClientRegistration({
+      client_name: "raycast",
+      redirect_uris: ["raycast://oauth"],
+      grant_types: ["authorization_code"],
+      private_key_jwt: "ignored",
+    }),
+  ).toBe(
+    JSON.stringify({
+      client_name: "raycast",
+      redirect_uris: ["raycast://oauth"],
+      grant_types: ["authorization_code"],
+    }),
+  );
+});
+
+test("registrationLogger writes sanitized registration metadata to stderr", async () => {
+  const app = express();
+  app.use(express.json());
+  app.use(registrationLogger());
+  app.post("/register", (_req, res) => res.status(201).send());
+
+  const out = await captureStderr(async () => {
+    await request(app)
+      .post("/register")
+      .set("content-type", "application/json")
+      .send({
+        client_name: "raycast",
+        redirect_uris: ["raycast://oauth"],
+        client_secret: "top-secret",
+      });
+  });
+
+  expect(out).toContain('client_name":"raycast"');
+  expect(out).toContain('redirect_uris":["raycast://oauth"]');
+  expect(out).not.toContain("top-secret");
+  expect(out).not.toContain("client_secret");
 });
 
 test("errorLogger writes stack and responds with 500 JSON instead of Express's default HTML", async () => {

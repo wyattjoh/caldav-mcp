@@ -10,7 +10,7 @@ import { createProvider, type VerifyLogin } from "../oauth/provider";
 import { createRateLimiter } from "../oauth/rate-limit";
 import { createServer } from "../mcp/server";
 import { createCaldavClient } from "../caldav/client";
-import { errorLogger, requestLogger } from "../util/log";
+import { errorLogger, registrationLogger, requestLogger } from "../util/log";
 
 export type HttpAppOptions = {
   publicUrl: string;
@@ -52,6 +52,7 @@ export const buildHttpApp = (opts: HttpAppOptions): HttpApp => {
   app.use(requestLogger());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(registrationLogger());
 
   app.use(
     mcpAuthRouter({
