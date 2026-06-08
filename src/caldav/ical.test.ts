@@ -169,3 +169,80 @@ test("parseVEvent handles folded lines", () => {
   ].join("\r\n");
   expect(parseVEvent(ical).summary).toBe("This is a very long summary that was folded");
 });
+
+test("buildVEvent emits a VTIMEZONE before the VEVENT for a DST zone", () => {
+  const ical = buildVEvent({
+    summary: "Call",
+    start: "2026-06-10T10:30:00",
+    end: "2026-06-10T11:30:00",
+    timezone: "Europe/Paris",
+  });
+  // VTIMEZONE present and positioned before the VEVENT.
+  expect(ical).toContain("BEGIN:VTIMEZONE");
+  expect(ical).toContain("TZID:Europe/Paris");
+  expect(ical.indexOf("BEGIN:VTIMEZONE")).toBeLessThan(ical.indexOf("BEGIN:VEVENT"));
+  // Summer in Paris is CEST (+0200), so a DAYLIGHT observance applies.
+  expect(ical).toContain("BEGIN:DAYLIGHT");
+  expect(ical).toContain("TZOFFSETFROM:+0100");
+  expect(ical).toContain("TZOFFSETTO:+0200");
+  // The event keeps its wall-clock TZID reference.
+  expect(ical).toContain("DTSTART;TZID=Europe/Paris:20260610T103000");
+  expect(ical).toContain("DTEND;TZID=Europe/Paris:20260610T113000");
+  expect(ical).not.toContain("NaN");
+});
+
+test("buildVEvent emits UTC as a Zulu time with no TZID", () => {
+  const ical = buildVEvent({
+    summary: "Sync",
+    start: "2026-06-10T08:30:00",
+    end: "2026-06-10T09:30:00",
+    timezone: "UTC",
+  });
+  expect(ical).toContain("DTSTART:20260610T083000Z");
+  expect(ical).toContain("DTEND:20260610T093000Z");
+  // Never the bare TZID=UTC that servers rewrite to the invalid "/UTC".
+  expect(ical).not.toContain("TZID=UTC");
+  expect(ical).not.toContain("/UTC");
+  expect(ical).not.toContain("BEGIN:VTIMEZONE");
+});
+
+test("buildVEvent emits a single STANDARD observance for a non-DST zone", () => {
+  const ical = buildVEvent({
+    summary: "Call",
+    start: "2026-06-10T10:30:00",
+    end: "2026-06-10T11:30:00",
+    timezone: "Asia/Tokyo",
+  });
+  expect(ical).toContain("TZID:Asia/Tokyo");
+  expect(ical).toContain("BEGIN:STANDARD");
+  expect(ical).not.toContain("BEGIN:DAYLIGHT");
+  expect(ical).toContain("TZOFFSETTO:+0900");
+  expect(ical).toContain("DTSTART;TZID=Asia/Tokyo:20260610T103000");
+});
+
+test("buildVEvent falls back to a bare TZID for zones Intl cannot resolve", () => {
+  const ical = buildVEvent({
+    summary: "Call",
+    start: "2026-06-04T09:30:00",
+    end: "2026-06-04T10:15:00",
+    timezone: "W. Europe Standard Time",
+  });
+  // No VTIMEZONE we cannot build correctly; preserve the prior behavior.
+  expect(ical).not.toContain("BEGIN:VTIMEZONE");
+  expect(ical).toContain("DTSTART;TZID=W. Europe Standard Time:20260604T093000");
+  expect(ical).toContain("DTEND;TZID=W. Europe Standard Time:20260604T101500");
+});
+
+test("buildVEvent VTIMEZONE does not disturb parseVEvent round-trips", () => {
+  const ical = buildVEvent({
+    summary: "Standup",
+    start: "2026-07-15T14:00:00",
+    end: "2026-07-15T15:00:00",
+    timezone: "America/Vancouver",
+  });
+  const parsed = parseVEvent(ical);
+  expect(parsed.timezone).toBe("America/Vancouver");
+  expect(parsed.start).toBe("2026-07-15T14:00:00");
+  expect(parsed.end).toBe("2026-07-15T15:00:00");
+  expect(parsed.summary).toBe("Standup");
+});
